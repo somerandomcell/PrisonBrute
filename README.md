@@ -246,28 +246,6 @@ When using `http-form` or `https-form`, you need to provide additional arguments
 *   📚 **WORDLISTS ARE KEY:** The success of a brute-force attack heavily depends on the quality of your username and password lists. Use common lists (SecLists is a great resource) and tailor them to your target if possible.
 *   🔎 **VERIFY FINDINGS:** Always manually verify any credentials found by `PrisonBrute` to ensure they are accurate and provide the expected level of access.
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Please feel free to:
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` file for more information.
-
----
-
-Happy (ethical) brute-forcing! Remember to always stay within legal boundaries.
-```
-
-**To make this GitHub-ready:**
-
-1.  **Create a `LICENSE` file** in your repository with the MIT License text (you can find templates online easily).
 2.  Replace `https://github.com/yourusername/PrisonBrute.git` with the actual URL once you create the repository.
 3.  Save the content above as `README.md` in the root of your GitHub repository.
 
