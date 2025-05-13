@@ -1,22 +1,4 @@
-```markdown
-# PrisonBrute 🗝️🔓💥
 
-**A High-Speed Hydra Attack Orchestrator for Ethical Pentesters & Security Researchers**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Bash Version](https://img.shields.io/badge/bash-%3E%3D4.x-blue)
-![Kali Linux](https://img.shields.io/badge/Kali%20Linux-Compatible-blueviolet)
-
-```ascii
-██████╗ ██████╗ ██╗███████╗ ██████╗ ███╗   ██╗
-██╔══██╗██╔══██╗██║██╔════╝██╔═══██╗████╗  ██║
-██████╔╝██████╔╝██║███████╗██║   ██║██╔██╗ ██║
-██╔═══╝ ██╔══██╗██║╚════██║██║   ██║██║╚██╗██║
-██║     ██║  ██║██║███████║╚██████╔╝██║ ╚████║
-╚═╝     ╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
-               P R I S O N B R U T E
-        High-Speed Hydra Attack Orchestrator
-```
 
 **Disclaimer:** ⚠️ **This tool is intended for legal and ethical use ONLY.** Use it exclusively on systems for which you have explicit, written permission to test. Unauthorized access to computer systems is illegal. The developers assume no liability and are not responsible for any misuse or damage caused by this program.
 
