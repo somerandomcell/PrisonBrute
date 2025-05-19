@@ -47,7 +47,7 @@ Think of it as a streamlined frontend for `hydra`, making it easier to launch co
 
 1.  **Clone the repository (or download the script):**
     ```bash
-    git clone https://github.com/yourusername/PrisonBrute.git # Replace with actual repo URL
+    git clone https://github.com/yourusername/PrisonBrute.git
     cd PrisonBrute
     ```
     Or, simply download `PrisonBrute.sh`.
