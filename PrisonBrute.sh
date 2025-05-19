@@ -1,5 +1,5 @@
 #!/bin/bash
-PRISON_DEFAULT_TASKS=64 # Increased default tasks for "faster" attempts
+PRISON_DEFAULT_TASKS=64
 OUTPUT_FILE="pb_found_credentials.txt"
 
 RED='\033[0;31m'
